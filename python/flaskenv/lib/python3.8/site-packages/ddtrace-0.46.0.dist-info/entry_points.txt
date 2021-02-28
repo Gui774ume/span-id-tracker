@@ -1,0 +1,10 @@
+[console_scripts]
+ddtrace-run = ddtrace.commands.ddtrace_run:main
+pyddprofile = ddtrace.profiling.__main__:main
+
+[gevent.plugins.monkey.did_patch_all]
+ddtrace.profiling.profiler = ddtrace.profiling.profiler:gevent_patch_all
+
+[pytest11]
+ddtrace = ddtrace.contrib.pytest.plugin
+
