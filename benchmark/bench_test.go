@@ -175,13 +175,13 @@ func BenchmarkFunctionWithComplexUprobe(b *testing.B) {
 	teardown()
 }
 
-func TracedFuncWithMemorySegment(elem *TracedStruct) int64 {
+func TracedFuncWithRuntimeExecute(elem *TracedStruct) int64 {
 	_ = time.Now()
 	eClient.HandleRuntimeExecuteEvent(erpc.Goid(), erpc.Mid())
 	return elem.goID
 }
 
-func BenchmarkFunctionWithRuntimeInstrumentation(b *testing.B) {
+func BenchmarkFunctionWithMemorySegmentRuntimeExecute(b *testing.B) {
 	var err error
 	eClient, err = erpc.NewERPCClient(erpc.MemorySegment)
 	if err != nil {
@@ -189,6 +189,24 @@ func BenchmarkFunctionWithRuntimeInstrumentation(b *testing.B) {
 	}
 	a := TracedStruct{goID: 42}
 	for i := 0; i < b.N; i++ {
-		_ = TracedFuncWithMemorySegment(&a)
+		_ = TracedFuncWithRuntimeExecute(&a)
+	}
+}
+
+func TracedFuncWithNewSpan(elem *TracedStruct) int64 {
+	_ = time.Now()
+	_ = eClient.HandleSpanCreationEvent(erpc.Goid(), 123456789, 987654321)
+	return elem.goID
+}
+
+func BenchmarkFunctionWithMemorySegmentNewSpan(b *testing.B) {
+	var err error
+	eClient, err = erpc.NewERPCClient(erpc.MemorySegment)
+	if err != nil {
+		b.Fatal(err)
+	}
+	a := TracedStruct{goID: 42}
+	for i := 0; i < b.N; i++ {
+		_ = TracedFuncWithNewSpan(&a)
 	}
 }
